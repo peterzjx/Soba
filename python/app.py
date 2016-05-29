@@ -124,13 +124,13 @@ class View(object):
         global threadmanager
         keyword = self.txtBox.text()
         results = psr.googleParser(keyword).search()
-        html = ""
+        self.pages = []
         shownlist = []
         for result in results:
             if "stackoverflow.com/questions" in result[0] and "tagged" not in result[0]:
                 shownlist.append(result[0])
         if len(shownlist) > 0:
-            for url in shownlist[:3]:
+            for url in shownlist[:6]:
                 threadmanager.addThread(url)
             threadmanager.wait()
         self.render()
