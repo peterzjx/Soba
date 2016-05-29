@@ -4,6 +4,8 @@ Soba (Stack Overflow Based Assistant) is a cross-platform desktop add-on focusin
 
 ## Prerequisites:
 
-Jinja2
-PySide
-BeautifulSoup
+Jinja2 (2.8)
+
+PySide 1.2.4
+
+BeautifulSoup4 (4.4.1)
