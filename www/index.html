@@ -7,15 +7,35 @@
   <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+  <!--<style>-->
+    <!--#container {-->
+        <!--display: flex;-->
+        <!--flex-direction: row;-->
+        <!--flex-wrap: nowrap;-->
+        <!--justify-content: space-between;-->
+    <!--}-->
+
+    <!--#container > div {-->
+        <!--width: 400px;-->
+        <!--display: block;-->
+        <!--float: none;-->
+        <!--&lt;!&ndash;min-width: 400px;&ndash;&gt;-->
+        <!--overflow: hidden;-->
+    <!--}-->
+  <!--</style>-->
 </head>
 <body>
   
-<div class="container">
-  <h3>{{ title }}</h3>
-  {% for item in answers %}
-    <p>{{ item }}</p>
-    <hr>
-  {% endfor %}
+<div class="container" id="container">
+    {% for page in pages %}
+    <div>
+        <h3>{{ page['title'] }}</h3>
+          {% for item in page['content'] %}
+            <p>{{ item }}</p>
+            <hr>
+          {% endfor %}
+    </div>
+    {% endfor %}
 </div>
 
 </body>

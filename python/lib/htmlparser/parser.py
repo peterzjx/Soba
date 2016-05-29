@@ -1,6 +1,6 @@
 __author__ = 'peter_000'
 from bs4 import BeautifulSoup
-import urllib, urllib2
+import urllib2
 
 
 class googleParser(object):
