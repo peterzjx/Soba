@@ -11,6 +11,7 @@ from PySide.QtCore import *
 
 import time
 import threading
+import thread
 
 import jinja2
 
@@ -25,10 +26,11 @@ class webThread(threading.Thread):
     def run(self):
         print "Starting " + self.name
         page = self.parse_url()
-        self.lock.acquire()
-        view.pages.append(page)
-        # view.render()
-        self.lock.release()
+        if len(page['content']) > 0:
+            self.lock.acquire()
+            view.pages.append(page)
+            # view.render()
+            self.lock.release()
 
     def parse_url(self):
         return psr.SOParser(self.url).parse()
@@ -100,7 +102,9 @@ class View(object):
 
         self.widget.setWindowTitle("Soba")
         self.widget.resize(750, 1000)
+        self.widget.setWindowFlags(self.widget.windowFlags() | Qt.WindowStaysOnTopHint)
         self.widget.show()
+
         QObject.connect(self.txtBox, SIGNAL("returnPressed()"), self.load_search)
         QObject.connect(self.txtBox, SIGNAL("textEdited(QString)"), self.text_changed)
 
@@ -120,8 +124,13 @@ class View(object):
         template = templateenv.get_template(template_file)
         return template
 
+
     def load_search(self):
         global threadmanager
+        self.browser.setHtml("Loading")
+        # self.browser.load("../www/loading.html")
+        # self.browser.show()
+        QApplication.processEvents()
         keyword = self.txtBox.text()
         results = psr.googleParser(keyword).search()
         self.pages = []
@@ -136,14 +145,12 @@ class View(object):
         self.render()
 
 
-
     def render(self):
         templateVars = {
                  "pages": self.pages,
                }
         html = self.template.render(templateVars)
         self.browser.setHtml(html)
-
 
 
 if __name__ == '__main__':

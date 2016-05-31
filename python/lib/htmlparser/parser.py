@@ -1,3 +1,5 @@
+import re
+
 __author__ = 'peter_000'
 from bs4 import BeautifulSoup
 import urllib2
@@ -50,7 +52,7 @@ class SOParser(object):
         title = soup.find('title').getText()
         result['title'] = title
         for posttext in soup.findAll('div', {"class": "post-text"}):
-            content.append(str(posttext).decode('UTF-8'))
+            content.append(re.sub('<pre>', '<pre class="prettyprint">', str(posttext).decode('UTF-8')))
         result['content'] = content
         return result
 
