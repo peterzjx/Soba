@@ -13,6 +13,8 @@ import time
 import threading
 import thread
 
+from bs4 import BeautifulSoup
+
 import jinja2
 
 class webThread(threading.Thread):
@@ -64,21 +66,23 @@ class ReadlineCompleter(QCompleter):
         self.update()
 
     def update(self):
+        self.lastkeyword = self.keyword
+        if len(self.keyword) > 4:
+            matches = self.comp.complete(self.keyword)
+            if matches:
+                self.model.setStringList(matches)
+                self.lastupdate = time.time()
+        else:
+            self.model.setStringList([])
+            self.lastupdate = time.time()
+
+    def update_helper(self):
         if self.keyword == self.lastkeyword:
             return
         elif time.time() < self.lastupdate + 1:
             threading.Timer(1.0, self.update).start()
         else:
-            self.lastkeyword = self.keyword
-            if len(self.keyword) > 4:
-                matches = self.comp.complete(self.keyword)
-                if matches:
-                    self.model.setStringList(matches)
-                    self.lastupdate = time.time()
-            else:
-                self.model.setStringList([])
-                self.lastupdate = time.time()
-
+            threading.Timer(0.01, self.update).start()
 
 class View(object):
     def __init__(self):
@@ -111,9 +115,10 @@ class View(object):
         self.template = self.setup_jinja()
         self.pages = []
 
+
     def text_changed(self):
         self.completer.keyword = self.txtBox.text()
-        self.completer.update()
+        self.completer.update_helper()
 
 
     def setup_jinja(self):
@@ -124,31 +129,37 @@ class View(object):
         template = templateenv.get_template(template_file)
         return template
 
-
     def load_search(self):
         global threadmanager
-        self.browser.setHtml("Loading")
-        # self.browser.load("../www/loading.html")
-        # self.browser.show()
+        self.browser.load("../www/loading.html")
+        self.browser.show()
         QApplication.processEvents()
         keyword = self.txtBox.text()
         results = psr.googleParser(keyword).search()
         self.pages = []
         shownlist = []
+        params = {'best_guess': ""}
         for result in results:
             if "stackoverflow.com/questions" in result[0] and "tagged" not in result[0]:
                 shownlist.append(result[0])
         if len(shownlist) > 0:
             for url in shownlist[:6]:
                 threadmanager.addThread(url)
+            for t in threadmanager.threadpool:
+                while t.isAlive():
+                    QApplication.processEvents()
             threadmanager.wait()
-        self.render()
+            if len(self.pages) > 0 and len(self.pages[0]) > 0 and len(self.pages[0]['content']) > 1 and BeautifulSoup(self.pages[0]['content'][1], 'html.parser').find('pre') is not None:
+                best_guess = BeautifulSoup(self.pages[0]['content'][1], 'html.parser').find('pre').getText().strip()
+                params = {'best_guess': best_guess}
+        self.render(params)
 
 
-    def render(self):
+    def render(self, params):
         templateVars = {
-                 "pages": self.pages,
-               }
+            "best_guess": params['best_guess'],
+            "pages": self.pages,
+            }
         html = self.template.render(templateVars)
         self.browser.setHtml(html)
 

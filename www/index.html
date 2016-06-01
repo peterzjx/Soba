@@ -8,7 +8,7 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
   <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
   <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js"></script>
-  <!--<style>-->
+  <style>
     <!--#container {-->
         <!--display: flex;-->
         <!--flex-direction: row;-->
@@ -23,11 +23,14 @@
         <!--&lt;!&ndash;min-width: 400px;&ndash;&gt;-->
         <!--overflow: hidden;-->
     <!--}-->
-  <!--</style>-->
+  </style>
 </head>
 <body>
   
 <div class="container" id="container">
+    <h3>Try this:</h3>
+    <pre class="prettyprint">{{best_guess}}</pre>
+    <hr>
     {% for page in pages %}
     <div>
         <h3>{{ page['title'] }}</h3>
