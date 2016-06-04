@@ -28,14 +28,15 @@ class webThread(threading.Thread):
     def run(self):
         print "Starting " + self.name
         page = self.parse_url()
-        if len(page['content']) > 0:
+        # if len(page['content']) > 0:
+        if page:
             self.lock.acquire()
             view.pages.append(page)
             # view.render()
             self.lock.release()
 
     def parse_url(self):
-        return psr.SOParser(self.url).parse()
+        return psr.HTMLParser(self.url).parse()
 
 class threadManager(object):
     def __init__(self):
@@ -135,13 +136,21 @@ class View(object):
         self.browser.show()
         QApplication.processEvents()
         keyword = self.txtBox.text()
-        results = psr.googleParser(keyword).search()
+
         self.pages = []
         shownlist = []
         params = {'best_guess': ""}
+
+        results = psr.GoogleParser(keyword).search()
+        if len(results) > 0:
+            shownlist.append(results[0][0])
+        if len(results) > 1:
+            shownlist.append(results[1][0])
+
+        results = psr.GoogleSOParser(keyword).search()
         for result in results:
-            if "stackoverflow.com/questions" in result[0] and "tagged" not in result[0]:
-                shownlist.append(result[0])
+            shownlist.append(result[0])
+
         if len(shownlist) > 0:
             for url in shownlist[:6]:
                 threadmanager.addThread(url)
@@ -149,9 +158,9 @@ class View(object):
                 while t.isAlive():
                     QApplication.processEvents()
             threadmanager.wait()
-            if len(self.pages) > 0 and len(self.pages[0]) > 0 and len(self.pages[0]['content']) > 1 and BeautifulSoup(self.pages[0]['content'][1], 'html.parser').find('pre') is not None:
-                best_guess = BeautifulSoup(self.pages[0]['content'][1], 'html.parser').find('pre').getText().strip()
-                params = {'best_guess': best_guess}
+            # if len(self.pages) > 0 and len(self.pages[0]) > 0 and len(self.pages[0]['content']) > 1 and BeautifulSoup(self.pages[0]['content'][1], 'html.parser').find('pre') is not None:
+            #     best_guess = BeautifulSoup(self.pages[0]['content'][1], 'html.parser').find('pre').getText().strip()
+            #     params = {'best_guess': best_guess}
         self.render(params)
 
 
